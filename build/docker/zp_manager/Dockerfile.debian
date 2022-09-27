@@ -1,0 +1,85 @@
+# Create container with environment
+# to run zabbix control in Python 3.7.2
+
+
+FROM "python:3.7.2"
+
+LABEL maintainer="Michel Peterson \
+      <michel.peterson@l1nuxc0d3.com>"
+
+LABEL description="This container run an python application that \
+	looking for issues triggered in zabbix."
+
+#
+# Copy python packages list to installation
+#
+
+COPY ./sourceconf/app/conf/requirement.txt /opt/zabbix-patrol/
+
+#
+# Set workdir
+#
+
+WORKDIR /opt/zabbix-patrol
+
+#
+# Install packages
+#
+
+RUN apt-get update && \
+    apt-get install -y tzdata make build-essential portaudio19-dev \
+    apt-utils locales && \
+    apt-get clean && \
+    sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
+    ln -sfv /usr/share/zoneinfo/America/Bahia /etc/localtime && \
+    locale-gen
+
+#
+# Set the locale
+#
+
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US.UTF-8
+ENV LC_ALL en_US.UTF-8
+
+#
+# Create application  python environment
+#
+
+RUN pip install --upgrade -U pip && \
+    pip install -U -r requirement.txt 
+
+#
+# Remove packages no more necessary
+#
+
+RUN apt-get remove -y make apt-utils build-essential portaudio19-dev
+
+#
+# Create user to run app and configure timezone
+#
+
+RUN addgroup zp && \
+    adduser --system --home /opt/zabbix-patrol \
+    --no-create-home --ingroup zp zp
+
+#
+# Configure permission to application user
+#
+
+ADD --chown=zp:zp ./sourceconf/app/zabbix-patrol/zp_finder.py /opt/zabbix-patrol/
+ADD --chown=zp:zp ./sourceconf/app/zabbix-patrol/database/ /opt/zabbix-patrol/database/
+ADD --chown=zp:zp ./sourceconf/app/conf/db_config.py /opt/zabbix-patrol/database/
+ADD --chown=zp:zp ./sourceconf/app/conf/zpconfig.ini /opt/zabbix-patrol/config/
+
+#
+# Set user to run app
+#
+
+USER zp:zp
+
+#
+# Set entry point
+#
+
+ENTRYPOINT ["python", "-u", "zp_finder.py"]

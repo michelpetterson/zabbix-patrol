@@ -1,0 +1,64 @@
+version: '3.5'
+
+services:
+  zp_finder:
+    build: 
+      context: build
+      dockerfile: docker/zp_finder/Dockerfile.alpine
+    depends_on:
+      - zp_database
+    command: sh -c "/wait-for-it.sh && python -u zp_finder.py"
+    environment:
+      - WAIT_HOSTS=zp_database:3306
+      - WAIT_HOSTS_TIMEOUT=300
+      - WAIT_SLEEP_INTERVAL=30
+      - WAIT_HOST_CONNECT_TIMEOUT=30
+    image: local/zp_finder_app:1.0
+    container_name: zp_finder
+    restart: always
+    networks: 
+      - zp-net
+
+  zp_manager:
+    build: 
+      context: build
+      dockerfile: docker/zp_manager/Dockerfile.alpine
+    depends_on:
+      - zp_database
+      - zp_finder
+    command: sh -c "/wait-for-it.sh && python -u zp_manager.py"
+    environment:
+      - WAIT_HOSTS=zp_database:3306
+      - WAIT_HOSTS_TIMEOUT=300
+      - WAIT_SLEEP_INTERVAL=30
+      - WAIT_HOST_CONNECT_TIMEOUT=30
+    image: local/zp_manager_app:1.0
+    container_name: zp_manager
+    restart: always
+    networks: 
+      - zp-net
+
+  zp_database:
+    build:
+      context: build
+      dockerfile: docker/zp_database/Dockerfile
+    image: local/zp_database:1.0
+    container_name: zp_database
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: "${dbrootpass}"
+      MYSQL_DATABASE: "${dbname}"
+      MYSQL_USER: "${dbuser}"
+      MYSQL_PASSWORD: "${dbpass}"
+    networks:
+      - zp-net
+    ports:
+      - "3306:3036"
+    volumes:
+      - zp_database-vol:/var/lib/mysql
+
+volumes:
+  zp_database-vol:
+networks:
+  zp-net:

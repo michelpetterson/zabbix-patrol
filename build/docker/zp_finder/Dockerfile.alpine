@@ -1,0 +1,88 @@
+# Create container with environment
+# to run zabbix control in Python 3.7.2
+
+
+FROM "python:3.7.2-alpine"
+
+LABEL maintainer="Michel Peterson \
+      <michel.peterson@l1nuxc0d3.com>"
+
+LABEL description="This container run an python application that \
+	looking for issues triggered in zabbix."
+
+#
+# Copy python packages list to installation
+#
+
+COPY ./sourceconf/app/conf/requirement.txt /opt/zabbix-patrol/
+
+#
+# Add docker-compose-wait tool
+#
+
+ENV WAIT_VERSION 2.7.2
+ADD https://github.com/ufoscout/docker-compose-wait/releases/download/$WAIT_VERSION/wait /wait-for-it.sh
+
+#
+# Set workdir
+#
+
+WORKDIR /opt/zabbix-patrol
+
+#
+# Install packages
+#
+
+RUN apk add --no-cache tzdata make build-base portaudio-dev
+
+#
+# Set the locale
+#
+
+ENV LANG pt_BR.UTF-8 \
+    LANGUAGE pt_BR.UTF-8 \
+    LC_ALL pt_BR.UTF-8
+
+#
+# Create application  python environment
+#
+
+RUN pip install --upgrade -U pip && \
+    pip install -U -r requirement.txt 
+
+#
+# Remove packages no more necessary
+#
+
+RUN apk del --quiet make build-base portaudio-dev
+
+#
+# Create user to run app and configure timezone
+#
+
+RUN addgroup zp && \
+    chmod +x /wait-for-it.sh && \
+    adduser -D --home /opt/zabbix-patrol \
+    --no-create-home --ingroup zp zp && \
+    cp /usr/share/zoneinfo/America/Bahia /etc/localtime
+
+#
+# Configure permission to application user
+#
+
+ADD --chown=zp:zp ./sourceconf/app/zabbix-patrol/zp_finder.py /opt/zabbix-patrol/
+ADD --chown=zp:zp ./sourceconf/app/zabbix-patrol/database/ /opt/zabbix-patrol/database/
+ADD --chown=zp:zp ./sourceconf/app/conf/db_config.py /opt/zabbix-patrol/database/
+ADD --chown=zp:zp ./sourceconf/app/conf/zpconfig.ini /opt/zabbix-patrol/config/
+
+#
+# Set user to run app
+#
+
+USER zp:zp
+
+#
+# Set entry point
+#
+
+#ENTRYPOINT ["python", "-u", "zp_finder.py"]
