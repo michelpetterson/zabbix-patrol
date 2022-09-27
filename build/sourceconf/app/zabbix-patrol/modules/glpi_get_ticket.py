@@ -5,16 +5,16 @@ import json
 from glpi import GLPI
 
 # GLPI Api url
-url = "https://hglpi.ufba.br/apirest.php"
+url = "https://hglpi.domain.com/apirest.php"
 
 # GLPI User credentials
 #user = "glpi-api"
 #password = "glpi_123"
 
 # Generate in Configuration -> General -> API
-app_token = "Gx1v3Knn4kzo6prgH5xSZYTgdSK7ehAid26mb7pg"
+app_token = ""
 # Generate in User Preference
-api_token = "VQpfz8UywZuyTkr2MnIUC9rC5BkmCv0MtcT6Ku24"
+api_token = ""
 
 glpi = GLPI(url, app_token, api_token)
 

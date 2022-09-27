@@ -3,11 +3,9 @@
 from pyzabbix import ZabbixAPI
 
 # Set variables to connection with Zabbix API
-ZbxServer = "https://zabbix.ufba.br"
-# ZbxUsername = "zabbix-api"
-ZbxUsername = "michel.peterson"
-# ZbxPassword = "Z@bb1x_2018$"
-ZbxPassword = "sysSAR0606"
+ZbxServer = "https://zabbix.domain.com"
+ZbxUsername = ""
+ZbxPassword = ""
 
 # Zabbix API Server
 zbxapi = ZabbixAPI(ZbxServer)

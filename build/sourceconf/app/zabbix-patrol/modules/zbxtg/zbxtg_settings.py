@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-tg_key = "793486649:AAGc0Kdjh78wMmpUC6HgdQYWWbPyRONHkmU"  # telegram bot api key
+tg_key = ""  # telegram bot api key
 
 zbx_tg_prefix = "zbxtg"  # variable for separating text from script info
 zbx_tg_tmp_dir = "/var/tmp/" + zbx_tg_prefix  # directory for saving caches, uids, cookies, etc.
@@ -12,9 +12,9 @@ zbx_tg_matches = {
     "ok": "OK: "
 }
 
-zbx_server = "https://zabbix.ufba.br/"  # zabbix server full url
+zbx_server = "https://zabbix.domain.com/"  # zabbix server full url
 zbx_api_user = "telegram"
-zbx_api_pass = "Telegr@m_2018$"
+zbx_api_pass = ""
 zbx_api_verify = True  # True - do not ignore self signed certificates, False - ignore
 
 zbx_server_version = 2  # for Zabbix 2.x version
@@ -23,7 +23,7 @@ zbx_server_version = 2  # for Zabbix 2.x version
 
 zbx_basic_auth = False
 zbx_basic_auth_user = "telegram"
-zbx_basic_auth_pass = "Telegr@m_2018$"
+zbx_basic_auth_pass = ""
 
 proxy_to_zbx = None
 proxy_to_tg = None
